@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Notiflix from 'notiflix';
+import { useDispatch, useSelector } from 'react-redux';
 
 import ContactForm, { ContactsInitialValues } from 'components/ContactForm';
 import ContactList from 'components/ContactList';
 import Filter from 'components/Filter';
 
+import { addContact, getContacts, removeContact } from '../../redux/contactsSlice';
+import { getFilter, setFilter } from '../../redux/filterSlice';
 import { Wrapper } from './App.styled';
-import { useLocalStorage } from 'utils/useLocalStorage';
 
 const App = () => {
-  const [contacts, setContacts] = useLocalStorage('contacts', '');
-  const [filter, setFilter] = useState('');
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
 
   const onSubmitForm = (values: ContactsInitialValues) => {
     const { name } = values;
@@ -22,19 +25,15 @@ const App = () => {
       return Notiflix.Notify.failure(`${name} is already in contacts.`);
     }
 
-    setContacts((prevState: ContactsInitialValues[]) => {
-      return [...prevState, values];
-    });
+    dispatch(addContact(values));
   };
 
   const onContactDelete = (contactId: string) => {
-    setContacts((prevContacts: ContactsInitialValues[]) =>
-      [...prevContacts].filter(contact => contact.id !== contactId)
-    );
+    dispatch(removeContact(contactId));
   };
 
   const onFilterList = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilter(e.currentTarget.value);
+    dispatch(setFilter(e.currentTarget.value));
   };
 
   const getFilteredContacts = () => {
