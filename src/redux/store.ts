@@ -9,6 +9,7 @@ const persistConfig = {
   key: 'contacts',
   storage,
   whiteList: ['contacts'],
+  blacklist: ['filter'],
 };
 
 const rootReducer = combineReducers({
