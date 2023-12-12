@@ -1,7 +1,11 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Formik, Field, ErrorMessage, FormikHelpers } from 'formik';
 import { nanoid } from 'nanoid';
+import Notiflix from 'notiflix';
 import * as yup from 'yup';
+
+import { addContact, getContacts } from '../../redux/contactsSlice';
 
 import { Form } from './ContactsForm.styled';
 
@@ -15,18 +19,30 @@ const validationSchema = yup.object({
     .required('Number is required'),
 });
 
-const ContactForm: React.FC<ContactFormProps> = ({ onSubmitForm }) => {
-  const initialValues: ContactsInitialValues = {
-    id: nanoid(),
-    name: '',
-    number: '',
-  };
+const initialValues: ContactsInitialValues = {
+  id: nanoid(),
+  name: '',
+  number: '',
+};
+
+const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
 
   const handleSubmit = (
     values: ContactsInitialValues,
     { resetForm }: FormikHelpers<ContactsInitialValues>
   ) => {
-    onSubmitForm(values);
+    const { name } = values;
+    const existName = contacts.find(
+      (contact: ContactsInitialValues) => contact.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (existName) {
+      return Notiflix.Notify.failure(`${name} is already in contacts.`);
+    }
+
+    dispatch(addContact(values));
     resetForm({ values: { ...initialValues, id: nanoid() } });
   };
 
@@ -61,8 +77,4 @@ export type ContactsInitialValues = {
   id: string;
   name: string;
   number: string;
-};
-
-type ContactFormProps = {
-  onSubmitForm: (p: ContactsInitialValues) => void;
 };

@@ -1,8 +1,18 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { getFilter, setFilter } from '../../redux/filterSlice';
 
 import { Input, Label } from './Filter.styled';
 
-const Filter: React.FC<FilterProps> = ({ filter, onFilterList }) => {
+const Filter = () => {
+  const dispatch = useDispatch();
+  const filter = useSelector(getFilter);
+
+  const onFilterList = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setFilter(e.currentTarget.value));
+  };
+
   return (
     <Label>
       Find contact by name
@@ -12,8 +22,3 @@ const Filter: React.FC<FilterProps> = ({ filter, onFilterList }) => {
 };
 
 export default Filter;
-
-type FilterProps = {
-  filter: string;
-  onFilterList: (e: React.ChangeEvent<HTMLInputElement>) => void;
-};

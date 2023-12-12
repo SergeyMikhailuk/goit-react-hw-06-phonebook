@@ -1,13 +1,31 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { ContactsInitialValues } from 'components/ContactForm';
+import { getContacts, removeContact } from '../../redux/contactsSlice';
+import { getFilter } from '../../redux/filterSlice';
+
 import { List, ListItem } from './ContactsList.styled';
 
-const ContactList: React.FC<ContactListProps> = ({ getContacts, onContactDelete }) => {
-  const contacts = getContacts() || [];
+const ContactList = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
+
+  const onContactDelete = (contactId: string) => {
+    dispatch(removeContact(contactId));
+  };
+
+  const getFilteredContacts = () => {
+    if (!filter) return [...contacts];
+
+    const contactToLowerCase = filter.toLowerCase();
+    return [...contacts].filter(contact => contact.name.toLowerCase().includes(contactToLowerCase));
+  };
+  const filteredContacts = getFilteredContacts() || [];
+
   return (
     <List>
-      {contacts.map((contact, index) => (
+      {filteredContacts.map((contact, index) => (
         <ListItem key={contact.id}>
           <span>{index + 1}</span>
           {contact.name}, {contact.number}
@@ -19,8 +37,3 @@ const ContactList: React.FC<ContactListProps> = ({ getContacts, onContactDelete 
 };
 
 export default ContactList;
-
-type ContactListProps = {
-  onContactDelete: (p: string) => void;
-  getContacts: () => ContactsInitialValues[];
-};
